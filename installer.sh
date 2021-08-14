@@ -1,5 +1,17 @@
 #!/bin/bash
 
+DOWNLOAD_VERSION=1.2.2
+
+arch=$(uname -i)
+if [[ $arch == x86_64* ]]; then
+    DOWNLOAD_FILE=https://github.com/prometheus/node_exporter/releases/download/v$DOWNLOAD_VERSION/node_exporter-$DOWNLOAD_VERSION.linux-amd64.tar.gz
+elif  [[ $arch == aarch64 ]]; then
+    DOWNLOAD_FILE=https://github.com/prometheus/node_exporter/releases/download/v$DOWNLOAD_VERSION/node_exporter-$DOWNLOAD_VERSION.linux-armv7.tar.gz
+else
+    echo "[!] 해당 스크립트가 지원하지 않는 아키텍쳐입니다."
+    exit 1
+fi
+
 SERVICE_FILE=/etc/systemd/system/node_exporter.service
 
 # root only
@@ -10,12 +22,12 @@ fi
 
 # 파일 작업
 cd /root/
-wget https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz
-tar xvfz node_exporter-*.*-amd64.tar.gz
+wget $DOWNLOAD_FILE
+tar xvfz node_exporter-*.*-*.tar.gz
 mv node_exporter*/ node_exporter/
 
 # 잔여 파일 정리
-rm -rf node_exporter-*.*-amd64.tar.gz
+rm -rf node_exporter-*.*-*.tar.gz
 
 if test -f "$SERVICE_FILE"; then
     echo "[!] systemd 파일이 이미 존재하는 것으로 확인되었습니다. 먼저 기존에 존재하던 서비스를 제거 후 다시 실행 바랍니다."
